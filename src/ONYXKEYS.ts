@@ -552,6 +552,9 @@ const ONYXKEYS = {
     NVP_LAST_ECASH_ANDROID_LOGIN: 'nvp_lastECashAndroidLogin',
     NVP_LAST_ANDROID_LOGIN: 'nvp_lastAndroidLogin',
 
+    /** Draft report comments */
+    NVP_DRAFT_REPORT_COMMENTS: 'nvp_draftReportComments',
+
     /** Collection Keys */
     COLLECTION: {
         DOWNLOAD: 'download_',
@@ -1198,6 +1201,7 @@ type OnyxValuesMapping = {
     [ONYXKEYS.NVP_LAST_IPHONE_LOGIN]: string;
     [ONYXKEYS.NVP_LAST_ANDROID_LOGIN]: string;
     [ONYXKEYS.TRANSACTION_THREAD_NAVIGATION_REPORT_IDS]: string[];
+    [ONYXKEYS.NVP_DRAFT_REPORT_COMMENTS]: OnyxTypes.DraftReportComments;
 };
 
 type OnyxDerivedValuesMapping = {

@@ -249,7 +249,19 @@ function ComposerWithSuggestions(
     const cursorPositionValue = useSharedValue({x: 0, y: 0});
     const tag = useSharedValue(-1);
     const [draftComment] = useOnyx(`${ONYXKEYS.COLLECTION.REPORT_DRAFT_COMMENT}${reportID}`, {canBeMissing: true});
-    const value = draftComment ?? '';
+    const [draftReportComments] = useOnyx(ONYXKEYS.NVP_DRAFT_REPORT_COMMENTS, {canBeMissing: true, selector: (draftReportComments) => draftReportComments?.[reportID]});
+    console.log('draftReportComments', draftReportComments);
+    console.log('draftComment', draftComment);
+    const [value, setValue] = useState(() => {
+        if (draftReportComments) {
+            emojisPresentBefore.current = extractEmojis(draftReportComments);
+        }
+        return draftReportComments ?? '';
+    });
+
+    useEffect(() => {
+        setValue(draftReportComments ?? '');
+    }, [draftReportComments]);
 
     const commentRef = useRef(value);
 
@@ -395,7 +407,7 @@ function ComposerWithSuggestions(
             }
             emojisPresentBefore.current = emojis;
 
-            // setValue(newCommentConverted);
+            setValue(newCommentConverted);
             if (commentValue !== newComment) {
                 const position = Math.max((selection.end ?? 0) + (newComment.length - commentRef.current.length), cursorPosition ?? 0);
 
@@ -412,6 +424,7 @@ function ComposerWithSuggestions(
             }
 
             commentRef.current = newCommentConverted;
+
             if (shouldDebounceSaveComment) {
                 isCommentPendingSaved.current = true;
                 debouncedSaveReportComment(reportID, newCommentConverted);
@@ -432,7 +445,7 @@ function ComposerWithSuggestions(
         (text: string) => {
             // selection replacement should be debounced to avoid conflicts with text typing
             // (f.e. when emoji is being picked and 1 second still did not pass after user finished typing)
-            updateComment(insertText(commentRef.current, selection, text), false);
+            updateComment(insertText(commentRef.current, selection, text), true);
         },
         [selection, updateComment],
     );
@@ -490,7 +503,7 @@ function ComposerWithSuggestions(
                         positionX: prevSelection.positionX,
                         positionY: prevSelection.positionY,
                     }));
-                    updateComment(newText, false);
+                    updateComment(newText, true);
                 }
             }
         },
@@ -499,7 +512,7 @@ function ComposerWithSuggestions(
 
     const onChangeText = useCallback(
         (commentValue: string) => {
-            updateComment(commentValue, false);
+            updateComment(commentValue, true);
 
             if (isIOSNative && syncSelectionWithOnChangeTextRef.current) {
                 const positionSnapshot = syncSelectionWithOnChangeTextRef.current.position;
@@ -839,7 +852,9 @@ function ComposerWithSuggestions(
                 resetKeyboardInput={resetKeyboardInput}
             />
 
-            {isValidReportIDFromPath(reportID) && (
+            {/* CQ TODO do we actually need this? */}
+
+            {/*{isValidReportIDFromPath(reportID) && (
                 <SilentCommentUpdater
                     reportID={reportID}
                     value={value}
@@ -847,7 +862,7 @@ function ComposerWithSuggestions(
                     commentRef={commentRef}
                     isCommentPendingSaved={isCommentPendingSaved}
                 />
-            )}
+            )}*/}
 
             {/* Only used for testing so far */}
             {children}
